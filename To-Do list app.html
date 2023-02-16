@@ -1,0 +1,370 @@
+<html>
+    <head>
+        <style>
+        :root {
+  /* 
+      Colors from The New Defaults:
+      https://dudleystorey.github.io/thenewdefaults/ 
+  */
+
+  --black:#111;
+  --charcoal: #222023;
+  --white: #fffefc;
+  --green: #2ecc40;
+  --red:  #b8100a;
+  --orange: #ed7116;
+  --yellow: #fabd04;
+
+  --color-text: var(--white);
+  --color-bg: var(--charcoal);
+  --color-bg-input: var(--black);
+  --color-checked: var(--green);
+  --color-delete: var(--red);
+  --color-accent: var(--orange);
+  --color-accent-hover: var(--yellow);
+
+  --line-height: 1.5;
+  --font-family: sans-serif;
+  --font-size: clamp(1rem, 3vw, 1.5rem);
+  --height: calc(var(--line-height) * var(--font-size));
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: inherit;
+  color: inherit;
+}
+
+html {
+  font-size: 100%;
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: var(--line-height);
+}
+
+body {
+    min-height: 100vh;
+}
+
+#defs {display: none;}
+
+.button {
+  border: 0;
+  outline: 0;
+  cursor: pointer;
+  height: var(--height);
+  width: var(--height);
+  background-color: var(--color-accent);
+  transition: background-color 150ms linear,
+              color 150ms linear;
+  
+  &:hover, &:focus { 
+    background-color: var(--color-accent-hover);
+    color: var(--color-bg);
+  }
+}
+
+.icon {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  pointer-events: none;
+  padding: 0.25em;
+}
+
+.header {
+  padding: 2rem 1rem 0.5rem;
+  text-align: center;
+  border-bottom: 2px solid currentColor;
+}
+
+.main {
+  padding: 1rem;
+  margin: 0 auto;
+  width: 65ch;
+  max-width: 100%;
+}
+
+.todo-form {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.25em;
+  margin-bottom: 1em;
+  font-size: var(--font-size);
+}
+
+.todo-input {
+  background-color: var(--color-bg-input);
+  border: 0;
+  outline: 2px solid transparent;
+  font-size: var(--font-size);
+  padding: 0.5em 1em;
+  height: var(--height);
+  transition: outline 150ms linear;
+
+  &:hover, &:focus { outline-color: var(--color-accent-hover);}
+}
+
+.filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-bottom: 1em;
+  gap: 1em;
+  font-size: var(--font-size);
+}
+
+.radio-option {
+  position: relative;
+  flex: 1;
+  text-align: center;
+}
+
+.radio-label {
+  font-size: inherit;
+  display: block;
+  width: 100%;
+  padding: 0 0.5em;
+  box-shadow: inset 0 -0.25em var(--color-accent);
+  opacity: 0.4;
+  transition: all 150ms linear;
+  
+}
+
+input[type="radio"] {
+    position: absolute;
+    left: 0;  
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  cursor: pointer;
+  &:hover + .radio-label,
+  &:focus + .radio-label,
+  &:checked + .radio-label {
+    opacity: 1;
+  }
+}
+
+
+.todo-item {
+  font-size: var(--font-size);
+  display: grid;
+  grid-template-columns: 1fr min-content min-content;
+  gap: 0.25em;
+  align-items: center;
+  margin-bottom: 0.25em;
+  transition: all 200ms ease;
+  transform: translateY(0);
+  transform-origin: bottom left;
+}
+    
+.todo-content {
+  background-color: var(--color-bg-input);
+  line-height: calc(var(--height) - 0.5em);
+  font-size: inherit;
+  padding: 0.25em 1em;
+  flex: 1;
+  transition: text-decoration 150ms linear, opacity 150ms linear;
+}
+
+.todo-completed { background-color: var(--color-checked); }
+.todo-delete { background-color: var(--color-delete); }
+
+.rotate-fade {
+  transform: rotate(30deg) translateY(2em);
+  opacity: 0;
+}
+
+.completed .todo-content {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+    </style>
+    </head>
+ <body>
+    <svg id="defs" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <symbol class="icon icon-checked" id="icon-checked" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </symbol>
+          <symbol class="icon icon-delete" id="icon-delete" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </symbol>
+          <symbol class="icon icon-add" id="icon-add" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </symbol>
+        </defs>
+      </svg>
+      <header class="header">
+        <h1>Todo List</h1>
+      </header>
+      <main class="main">
+        <form class="todo-form">
+          <input type="text" name="todo-input" id="todo-input" class="todo-input" />
+          <button id="todo-submit" class="button todo-submit" type="submit" aria-label="add">
+            <svg class="icon">
+              <use xlink:href="#icon-add" /></svg>
+          </button>
+        </form>
+        <section class="todos">
+          <div class="filter">
+            <div class="radio-option">
+              <input type="radio" id="all" name="filter" value="all" checked>
+              <label for="all" class="radio-label">All</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="completed" name="filter" value="completed">
+              <label for="completed" class="radio-label">Completed</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="uncompleted" name="filter" value="uncompleted">
+              <label for="uncompleted" class="radio-label">Uncompleted</label>
+            </div>
+          </div>
+          <div class="todo-list" id="todo-list"></div>
+        </section>
+      </main>
+ </body> 
+ <script>const todoSubmit = document.getElementById("todo-submit");
+    const todoList = document.getElementById("todo-list");
+    const filterOptions = document.getElementsByName("filter");
+    !localStorage.getItem("filterBy") ||
+    localStorage.getItem("filterBy") === "undefined"
+      ? window.localStorage.setItem("filterBy", "all")
+      : null;
+    
+    buildTodoList();
+    filterTodos();
+    filterOptions.forEach((item) =>
+      item.value === localStorage.getItem("filterBy")
+        ? (item.checked = true)
+        : (item.checked = false)
+    );
+    
+    todoSubmit.addEventListener("click", addTodo);
+    todoList.addEventListener("click", handleTodoClickEvent);
+    filterOptions.forEach((option) =>
+      option.addEventListener("click", filterTodos)
+    );
+    
+    // Build todo list from localStorage
+    function buildTodoList() {
+      todoList.innerHTML = "";
+      const currentList =
+        JSON.parse(window.localStorage.getItem("localTodoList")) || [];
+      currentList.forEach((todo) => buildTodoListItem(todo));
+    }
+    
+    // inject a new todo upon input
+    function buildTodoListItem(todo) {
+      let todoItem = document.createElement("div");
+      todoItem.classList.add("todo-item");
+      todoItem.innerHTML = `<p class="todo-content" tabindex="0">${todo.todo}</p><button class="button todo-completed" aria-label="mark complete"><svg class="icon"><use xlink:href="#icon-checked" /></svg></button><button class="button todo-delete" aria-label="mark complete"><svg class="icon"><use xlink:href="#icon-delete" /></svg></button></div>`;
+      todo.completed ? todoItem.classList.add("completed") : null;
+      todoItem.dataset.id = todo.id;
+      todoList.appendChild(todoItem);
+    }
+    
+    // add new todo
+    function addTodo(e) {
+      e.preventDefault();
+      const todoInput = document.getElementById("todo-input");
+      const newTodo = {
+        todo: todoInput.value,
+        completed: false,
+        id: new Date().getTime()
+      };
+      addTodoToLocalStorage(newTodo);
+      buildTodoListItem(newTodo);
+      todoInput.value = "";
+    }
+    
+    function handleTodoClickEvent(e) {
+      e.preventDefault;
+      const todo = e.target.parentElement;
+      if (e.target.classList.contains("todo-delete")) {
+        deleteTodo(todo);
+      } else if (e.target.classList.contains("todo-completed")) {
+        markTodoComplete(todo);
+      }
+    }
+    
+    function deleteTodo(todo) {
+      todo.classList.add("rotate-fade");
+      todo.addEventListener("transitionend", () => {
+        removeTodoFromLocalStorage(todo);
+        todo.remove();
+      });
+    }
+    
+    function markTodoComplete(todo) {
+      todo.children[0].focus();
+      todo.classList.toggle("completed");
+      const isComplete = todo.classList.contains("completed") ? true : false;
+      const localTodoList = JSON.parse(
+        window.localStorage.getItem("localTodoList")
+      );
+      localTodoList.forEach((item) => {
+        if (item.id === parseInt(todo.dataset.id)) item.completed = isComplete;
+      });
+      console.log(localTodoList);
+      window.localStorage.setItem("localTodoList", JSON.stringify(localTodoList));
+    }
+    
+    function addTodoToLocalStorage(todo) {
+      const currentList =
+        JSON.parse(window.localStorage.getItem("localTodoList")) || [];
+      const newList = [...currentList, todo];
+      window.localStorage.setItem("localTodoList", JSON.stringify(newList));
+    }
+    
+    function removeTodoFromLocalStorage(todo) {
+      const currentList = JSON.parse(window.localStorage.getItem("localTodoList"));
+      const newList = currentList.filter(
+        (item) => item.id !== parseInt(todo.dataset.id)
+      );
+      window.localStorage.setItem("localTodoList", JSON.stringify(newList)) || [];
+    }
+    
+    function filterTodos() {
+      const value = this.value || window.localStorage.getItem("filterBy");
+      const todoListItems = document.querySelectorAll(".todo-item");
+    
+      todoListItems.forEach((item) =>
+        item.value === value ? (item.checked = true) : (item.checked = false)
+      );
+      switch (value) {
+        case "all":
+          todoListItems.forEach((item) => (item.style.display = "grid"));
+          break;
+        case "completed":
+          todoListItems.forEach((item) =>
+            !item.classList.contains("completed")
+              ? (item.style.display = "none")
+              : (item.style.display = "grid")
+          );
+          break;
+        case "uncompleted":
+          todoListItems.forEach((item) =>
+            item.classList.contains("completed")
+              ? (item.style.display = "none")
+              : (item.style.display = "grid")
+          );
+          break;
+        default:
+          todoListItems.forEach((item) => (item.style.display = "grid"));
+          break;
+      }
+    }
+    </script>
+</html>
